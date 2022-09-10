@@ -1,5 +1,5 @@
 require 'pry'
-
+system("clear")
 =begin
 PROBLEM: Calculate mortgage payment
 
@@ -64,7 +64,11 @@ loop do
   end
 
   prompt "Calculating..."
-  payment = loan_amount * (monthly_apr / (1 - (1 + monthly_apr)**(-months)))
+  payment = if monthly_apr == 0
+      loan_amount.to_f / months.to_f
+    else
+      loan_amount * (monthly_apr / (1 - (1 + monthly_apr)**(-months)))
+    end
   prompt "Your monthly payment will be $#{format('%.2f', payment)}."
 
   prompt "Would you like to calculate again? Y/N"
