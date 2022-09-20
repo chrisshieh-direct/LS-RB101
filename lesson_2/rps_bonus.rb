@@ -96,7 +96,7 @@ loop do
   choice = ''
 
   loop do
-    prompt('Make your choice: (R)ock, (P)aper, (S)cissors, (L)izard, or Spoc(k)!')
+    prompt('Make your choice: (R)ock, (P)aper, (S)cissors, (L)izard, or Spoc(K)!')
     choice = gets.chomp.downcase
     case choice.downcase
     when 'r' then choice = 'rock'
