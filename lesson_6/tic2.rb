@@ -42,6 +42,15 @@ def check_winner(board,rec,player)
   end
 end
 
+def check_tie(board)
+  if board.include?(0)
+    return false
+  else
+    puts "It's a TIE!"
+  end
+  true
+end
+
 board = [0,0,0,0,0,0,0,0,0]
 record = []
 comp_record = []
@@ -69,7 +78,7 @@ loop do
     display_board(board)
 
     break if check_winner(board,record,1)
-    #check_for_tie
+    break if check_tie(board)
 
     puts "Now the computer will pick a square."
     sleep 1
@@ -89,7 +98,7 @@ loop do
     display_board(board)
 
     break if check_winner(board,comp_record,2)
-    #check_for_tie
+    break if check_tie(board)
   end
 
   puts "Play again?"
