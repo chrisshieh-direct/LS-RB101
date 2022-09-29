@@ -95,12 +95,20 @@ loop do
     sleep 1
     computer = 0
 
+    # check_offense
+    # check_defense
+
     loop do
-      computer = rand(0..8)
-      if board[computer] != 0
-        next
-      else
+      if board[4] == 0
+        computer = 4
         break
+      else
+        computer = rand(0..8)
+        if board[computer] != 0
+          next
+        else
+          break
+        end
       end
     end
 
