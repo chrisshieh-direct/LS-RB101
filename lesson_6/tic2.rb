@@ -1,3 +1,5 @@
+WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+
 def display_board(a)
   system('clear')
   puts '-------------'
@@ -19,15 +21,26 @@ def cell(value)
   end
 end
 
-def change_board(c,b,p)
+def change_board(c,b,p,rec)
   if p == 1
     b[c] = 1
+    rec << c
   elsif p == 2
     b[c] = 2
+    rec << c
+  end
+end
+
+def check_winner(board,player)
+  if WINS.any?{ |y| y.all?{ |x|player.include?(x)} }
+    puts "VICTORY!"
+    true
   end
 end
 
 board = [0,0,0,0,0,0,0,0,0]
+record = []
+comp_record = []
 
 display_board(board)
 
@@ -45,10 +58,11 @@ loop do
     end
   end
 
-  change_board(choice, board, 1)
+  change_board(choice, board, 1, record)
 
   display_board(board)
-  #check_winner
+
+  break if check_winner(board,record)
   #check_for_tie
 
   puts "Now the computer will pick a square."
@@ -64,10 +78,12 @@ loop do
     end
   end
 
-  change_board(computer, board, 2)
+  change_board(computer, board, 2, comp_record)
 
   display_board(board)
-  #check_winner
+
+  check_winner(board,comp_record)
+
   #check_for_tie
 
 end
