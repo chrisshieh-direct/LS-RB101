@@ -31,9 +31,43 @@ board = [0,0,0,0,0,0,0,0,0]
 
 display_board(board)
 
-puts "Pick a square, 1-9."
-choice = gets.to_i-1
+loop do
+  choice = 0
 
-change_board(choice, board, 1)
+  loop do
+    puts "Pick a square, 1-9."
+    choice = gets.to_i-1
+    if board[choice] != 0
+      puts "Sorry, that's occupied. Pick again."
+      next
+    else
+      break
+    end
+  end
 
-display_board(board)
+  change_board(choice, board, 1)
+
+  display_board(board)
+  #check_winner
+  #check_for_tie
+
+  puts "Now the computer will pick a square."
+  sleep 2
+  computer = 0
+
+  loop do
+    computer = rand(0..8)
+    if board[computer] != 0
+      next
+    else
+      break
+    end
+  end
+
+  change_board(computer, board, 2)
+
+  display_board(board)
+  #check_winner
+  #check_for_tie
+
+end
