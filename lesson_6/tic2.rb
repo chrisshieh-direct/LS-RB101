@@ -31,9 +31,13 @@ def change_board(c,b,p,rec)
   end
 end
 
-def check_winner(board,player)
-  if WINS.any?{ |y| y.all?{ |x|player.include?(x)} }
-    puts "VICTORY!"
+def check_winner(board,rec,player)
+  if WINS.any?{ |y| y.all?{ |x|rec.include?(x)} }
+    if player == 1
+      puts "You WIN!"
+    else
+      puts "The computer wins."
+    end
     true
   end
 end
@@ -42,48 +46,61 @@ board = [0,0,0,0,0,0,0,0,0]
 record = []
 comp_record = []
 
-display_board(board)
-
+#MAIN LOOP
 loop do
-  choice = 0
-
-  loop do
-    puts "Pick a square, 1-9."
-    choice = gets.to_i-1
-    if board[choice] != 0
-      puts "Sorry, that's occupied. Pick again."
-      next
-    else
-      break
-    end
-  end
-
-  change_board(choice, board, 1, record)
-
   display_board(board)
 
-  break if check_winner(board,record)
-  #check_for_tie
-
-  puts "Now the computer will pick a square."
-  sleep 2
-  computer = 0
-
   loop do
-    computer = rand(0..8)
-    if board[computer] != 0
-      next
-    else
-      break
+    choice = 0
+
+    loop do
+      puts "Pick a square, 1-9."
+      choice = gets.to_i-1
+      if board[choice] != 0
+        puts "Sorry, that's occupied. Pick again."
+        next
+      else
+        break
+      end
     end
+
+    change_board(choice, board, 1, record)
+
+    display_board(board)
+
+    break if check_winner(board,record,1)
+    #check_for_tie
+
+    puts "Now the computer will pick a square."
+    sleep 1
+    computer = 0
+
+    loop do
+      computer = rand(0..8)
+      if board[computer] != 0
+        next
+      else
+        break
+      end
+    end
+
+    change_board(computer, board, 2, comp_record)
+
+    display_board(board)
+
+    break if check_winner(board,comp_record,2)
+    #check_for_tie
   end
 
-  change_board(computer, board, 2, comp_record)
-
-  display_board(board)
-
-  check_winner(board,comp_record)
-
-  #check_for_tie
-
+  puts "Play again?"
+  again = gets.chomp.downcase
+  if again == "y"
+    board = [0,0,0,0,0,0,0,0,0]
+    record = []
+    comp_record = []
+    next
+  else
+    puts "Thank you for playing!"
+    break
+  end
 end
