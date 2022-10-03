@@ -62,6 +62,8 @@ def check_tie(board)
   true
 end
 
+# end methods
+
 board = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 record = []
 comp_record = []
@@ -94,6 +96,8 @@ loop do
     puts "Now the computer will pick a square."
     sleep 1
     computer = 0
+
+    offensive(board)
 
     # check_offense
     # check_defense
