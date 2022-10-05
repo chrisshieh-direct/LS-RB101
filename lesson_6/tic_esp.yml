@@ -1,1 +1,6 @@
-welcome: "Bienvenido a Tic-Tac-Toe!"
+who_first?: "¿A quién te gustaría mudar primero? (J)ugador, (C)omputadora o (A)leatorio"
+invalid_who_first?: "Por favor ingresa la (J)ugador, del (C)omputadora o (A)leatorio."
+player_first: "¡La jugadora se moverá primero!"
+computer_first: "El ordenador dará el primer paso."
+get_move: "Elige un espacio"
+invalid_move: "Lo siento, esa no es una opción válida."

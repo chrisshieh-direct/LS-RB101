@@ -1,4 +1,9 @@
-welcome: "Welcome to Tic-Tac-Toe!"
+who_first?: "Who would you like to move first? (P)layer, (C)omputer, or (R)andom?"
+invalid_who_first?: "Please enter (Player), (C)omputer, or (R)andom."
+player_first: "Player will move first!"
+computer_first: "Computer will make the first move."
+get_move: "Choose a space"
+invalid_move: "Sorry, that's not a valid choice."
 choice: |
   Choose a weapon or its abbreviation:
   rock (r)

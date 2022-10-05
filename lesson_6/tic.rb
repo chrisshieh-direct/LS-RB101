@@ -19,10 +19,10 @@ def prompt(message)
   puts "==> #{message}"
 end
 
-def reset_board(brd)
-  brd = { 1 => ' ', 2 => ' ', 3 => ' ',
-          4 => ' ', 5 => ' ', 6 => ' ',
-          7 => ' ', 8 => ' ', 9 => ' ' }
+def reset_board
+  { 1 => ' ', 2 => ' ', 3 => ' ',
+    4 => ' ', 5 => ' ', 6 => ' ',
+    7 => ' ', 8 => ' ', 9 => ' ' }
 end
 
 def divider_print
@@ -44,24 +44,91 @@ def display_board(brd)
   divider_print
 end
 
+def who_goes_first(lang, text_src_local)
+  input = get_who_first(lang, text_src_local)
+  case input
+  when 'p', 'j' then 1
+  when 'c' then 2
+  when 'r', 'a' then rand(1..2)
+  end
+end
+
+def get_who_first(lang, text_src_local)
+  prompt(text_src_local['who_first?'])
+  input = ''
+  loop do
+    input = gets.chomp.downcase
+    if lang == '2'
+      break if ['j', 'c', 'a'].include?(input)
+    else
+      break if ['p', 'c', 'r'].include?(input)
+    end
+    prompt(text_src_local['invalid_who_first?'])
+  end
+  input
+end
+
+def empty_squares(brd)
+  brd.keys.select { |num| brd[num] == ' ' }
+end
+
+def player_move!(text_src_local, brd)
+  move = 0
+  
+  loop do
+    prompt(text_src_local['get_move'] + " (#{joinor(empty_squares(brd))})")
+    move = gets.to_i
+    if empty_squares(brd).include?(move)
+      break
+    else
+      prompt(text_src_local['invalid_move'])
+    end
+  end
+
+  brd[move] = PLAYER_MARKER
+
+  display_board(brd)
+end
+
+def computer_move!(_text_src_local, brd)
+  brd
+end
+
+def joinor(arr, delimiter = ', ', connector = 'or')
+  if arr.size > 2
+    oxford = delimiter
+  else
+    oxford = ' '
+  end
+  *most, last = arr
+  most.join(delimiter) + "#{oxford}#{connector} #{last}"
+end
+# end methods
+
 # game begins here
-board = { 1 => ' ', 2 => ' ', 3 => ' ',
-          4 => 'X', 5 => ' ', 6 => ' ',
-          7 => ' ', 8 => ' ', 9 => ' ' }
+board = reset_board
 
 prompt("Please choose a language ('1' for English, '2' for Spanish):")
 language = gets.chomp
 text_src = localize(language)
 
-# main loop
+# MAIN LOOP
+loop do
+  # draw the board
+  display_board(board)
+  first = who_goes_first(language, text_src)
 
-# draw the board
-display_board(board)
-sleep 2
-reset_board(board)
-display_board(board)
+  if first == 1
+    prompt(text_src['player_first'])
+    player_move!(text_src, board)
+    computer_move!(text_src, board)
+  else
+    prompt(text_src['computer_first'])
+    computer_move!(text_src, board)
+    player_move!(text_src, board)
+  end
+end
 
-# ask who goes first (choice or random)
 # player 1 places
 # check for win
 # check for full
