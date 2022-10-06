@@ -47,9 +47,21 @@ end
 def who_goes_first(lang, text_src_local)
   input = get_who_first(lang, text_src_local)
   case input
-  when 'p', 'j' then 1
-  when 'c' then 2
-  when 'r', 'a' then rand(1..2)
+  when 'p', 'j'
+    prompt(text_src_local['player_first'])
+    1
+  when 'c'
+    prompt(text_src_local['computer_first'])
+    2
+  when 'r', 'a'
+    random_choice = rand(1..2)
+    if random_choice == 1
+      prompt(text_src_local['player_first'])
+      1
+    else
+      prompt(text_src_local['computer_first'])
+      2
+    end
   end
 end
 
@@ -60,8 +72,8 @@ def get_who_first(lang, text_src_local)
     input = gets.chomp.downcase
     if lang == '2'
       break if ['j', 'c', 'a'].include?(input)
-    else
-      break if ['p', 'c', 'r'].include?(input)
+    elsif ['p', 'c', 'r'].include?(input)
+      break
     end
     prompt(text_src_local['invalid_who_first?'])
   end
@@ -74,7 +86,7 @@ end
 
 def player_move!(text_src_local, brd)
   move = 0
-  
+
   loop do
     prompt(text_src_local['get_move'] + " (#{joinor(empty_squares(brd))})")
     move = gets.to_i
@@ -90,16 +102,21 @@ def player_move!(text_src_local, brd)
   display_board(brd)
 end
 
-def computer_move!(_text_src_local, brd)
-  brd
+def computer_move!(text_src_local, brd)
+  random_comp_line = "computer_will_move_" + rand(1..15).to_s
+  prompt(text_src_local[random_comp_line])
+  sleep 1.75
+  brd[empty_squares(brd).sample] = COMP_MARKER
+  display_board(brd)
 end
 
 def joinor(arr, delimiter = ', ', connector = 'or')
-  if arr.size > 2
-    oxford = delimiter
-  else
-    oxford = ' '
-  end
+  return arr.first if arr.size == 1
+  oxford = if arr.size > 2
+             delimiter
+           else
+             ' '
+           end
   *most, last = arr
   most.join(delimiter) + "#{oxford}#{connector} #{last}"
 end
@@ -113,17 +130,16 @@ language = gets.chomp
 text_src = localize(language)
 
 # MAIN LOOP
-loop do
-  # draw the board
-  display_board(board)
-  first = who_goes_first(language, text_src)
 
+# draw the board
+display_board(board)
+first = who_goes_first(language, text_src)
+
+loop do
   if first == 1
-    prompt(text_src['player_first'])
     player_move!(text_src, board)
     computer_move!(text_src, board)
   else
-    prompt(text_src['computer_first'])
     computer_move!(text_src, board)
     player_move!(text_src, board)
   end
