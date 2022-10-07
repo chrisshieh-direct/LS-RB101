@@ -172,3 +172,4 @@ puts "TIE"
 # check for full
 # play again?
 # thank you for playing
+# okay check this
