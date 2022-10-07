@@ -4,12 +4,12 @@ num1 = gets.to_i
 puts "What's the second number?"
 num2 = gets.to_i
 
-options = ["a","s","m","d"]
+options = ["a", "s", "m", "d"]
 op = nil
 
 loop do
-puts "Would you like to add, subtract, multiply, or divide? (A/S/M/D)"
-op = gets.chomp.downcase
+  puts "Would you like to add, subtract, multiply, or divide? (A/S/M/D)"
+  op = gets.chomp.downcase
   if options.include?(op)
     break
   else
@@ -18,14 +18,10 @@ op = gets.chomp.downcase
 end
 
 case op
-  when "a"
-    result = num1 + num2
-  when "s"
-    result = num1 - num2
-  when "m"
-    result = num1 * num2
-  else
-    result = num1.to_f / num2.to_f
+when "a" then result = num1 + num2
+when "s" then result = num1 - num2
+when "m" then result = num1 * num2
+when "d" then result = num1.to_f / num2.to_f
 end
 
 puts result

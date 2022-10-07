@@ -1,0 +1,72 @@
+START
+
+GET integer 1
+GET integer 2
+
+SET sum = integer 1 + integer 2
+
+RETURN sum
+END
+
+###
+
+SET arr = an array of strings
+
+Go through each item from arr and add it to a new variable concat
+
+PRINT concat
+
+###
+
+SET arr = an array of integers
+
+SET counter = 0
+
+Iterate through arr 
+
+LOOP
+BREAK if counter is equal to length of arr 
+IF counter is even
+  ADD item to a new array eo_array
+END
+  INCREMENT counter by 1
+END
+
+print eo_array
+END
+
+###
+
+START
+
+SET arr = string split up by character
+GET character to search for
+SET counter = 0
+
+Search for the letter in the array. (Probably each_with_index)
+IF found
+  add 1 to counter
+  if counter == 3, SET position to index of item
+  else return nil
+END
+
+PRINT position
+END
+
+###
+
+START
+
+GET array1 (or have it pre-entered)
+GET array2
+
+SET count = 0
+SET finish = array1.length
+
+LOOP
+  newarray = array1.shift
+  newarray = array2.shift
+  INCREMENT count
+  IF count == finish BREAK
+DO
+
