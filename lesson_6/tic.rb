@@ -2,7 +2,7 @@ require 'yaml'
 
 WINS = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
         [1, 4, 7], [2, 5, 8], [3, 6, 9],
-        [1, 5, 8], [3, 5, 7]]
+        [1, 5, 9], [3, 5, 7]]
 PLAYER_MARKER = 'X'
 COMP_MARKER = 'O'
 
@@ -123,14 +123,22 @@ end
 
 def condition_check(brd, role)
   if board_full?(brd)
-    return 0
+    puts "TIE"
   elsif victory?(brd, role)
-    return 1
+    puts "WINNER"
   end
 end
 
 def board_full?(brd)
-  empty_squares(brd).length == 0
+  empty_squares(brd).empty?
+end
+
+def victory?(brd, role)
+  role == 1 ? which = PLAYER_MARKER : which = COMP_MARKER
+  moves = brd.select { |_k, v| v == which }.keys
+  WINS.any? do |arr|
+    arr.all? { |x| moves.include?(x) }
+  end
 end
 
 # end methods
