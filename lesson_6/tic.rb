@@ -48,18 +48,14 @@ def who_goes_first(lang, text_src_local)
   input = get_who_first(lang, text_src_local)
   case input
   when 'p', 'j'
-    prompt(text_src_local['player_first'])
     1
   when 'c'
-    prompt(text_src_local['computer_first'])
     2
   when 'r', 'a'
     random_choice = rand(1..2)
     if random_choice == 1
-      prompt(text_src_local['player_first'])
       1
     else
-      prompt(text_src_local['computer_first'])
       2
     end
   end
@@ -134,7 +130,7 @@ def board_full?(brd)
 end
 
 def victory?(brd, role)
-  role == 1 ? which = PLAYER_MARKER : which = COMP_MARKER
+  which = role == 1 ? PLAYER_MARKER : COMP_MARKER
   moves = brd.select { |_k, v| v == which }.keys
   WINS.any? do |arr|
     arr.all? { |x| moves.include?(x) }
@@ -155,6 +151,11 @@ text_src = localize(language)
 # draw the board
 display_board(board)
 first = who_goes_first(language, text_src)
+if first == 1
+  prompt(text_src['player_first'])
+else
+  prompt(text_src['computer_first'])
+end
 
 loop do
   if first == 1
