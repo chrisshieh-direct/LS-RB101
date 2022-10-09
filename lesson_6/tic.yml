@@ -19,10 +19,8 @@ computer_will_move_12: "Wow, I think you're cheating..."
 computer_will_move_13: "Do we have to compete?"
 computer_will_move_14: "Why can't we just share the grid?"
 computer_will_move_15: "I'm having fun now..."
-choice: |
-  Choose a weapon or its abbreviation:
-  rock (r)
-  paper (p)
-  scissors (sc)
-  spock (sp)
-  lizard (l)
+player_win: "You win! Congratulations!"
+comp_win: "The computer won. Sorry."
+tie: "It's a tie! Wasn't that a blast?"
+thank_you: "Thank you for playing!"
+again: "Would you like to play again? (Y or N)"

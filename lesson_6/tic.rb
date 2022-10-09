@@ -101,7 +101,7 @@ end
 def computer_move!(text_src_local, brd)
   random_comp_line = "computer_will_move_" + rand(1..15).to_s
   prompt(text_src_local[random_comp_line])
-  sleep 1.75
+  sleep 1.5
   brd[empty_squares(brd).sample] = COMP_MARKER
   display_board(brd)
 end
@@ -135,7 +135,13 @@ def condition_check(brd, role)
   elsif board_full?(brd)
     return 3
   end
-  return 0
+  0
+end
+
+def play_again?(text_src_local)
+  prompt(text_src_local['again'])
+  answer = gets.chomp.downcase
+  answer[0] == 'y'
 end
 # end methods
 
@@ -147,43 +153,47 @@ language = gets.chomp
 text_src = localize(language)
 
 # MAIN LOOP
-
-# draw the board
-display_board(board)
-first = who_goes_first(language, text_src)
-if first == 1
-  prompt(text_src['player_first'])
-else
-  prompt(text_src['computer_first'])
-end
-
-result = 0
-
 loop do
+  # draw the board
+  board = reset_board
+  display_board(board)
+  first = who_goes_first(language, text_src)
   if first == 1
-    player_move!(text_src, board)
-    result = condition_check(board, 1)
-    break if result != 0
-    computer_move!(text_src, board)
-    result = condition_check(board, 2)
-    break if result != 0
+    prompt(text_src['player_first'])
   else
-    computer_move!(text_src, board)
-    result = condition_check(board, 2)
-    break if result != 0
-    player_move!(text_src, board)
-    result = condition_check(board, 1)
-    break if result != 0
+    prompt(text_src['computer_first'])
   end
+
+  result = 0
+
+  loop do
+    if first == 1
+      player_move!(text_src, board)
+      result = condition_check(board, 1)
+      break if result != 0
+      computer_move!(text_src, board)
+      result = condition_check(board, 2)
+      break if result != 0
+    else
+      computer_move!(text_src, board)
+      result = condition_check(board, 2)
+      break if result != 0
+      player_move!(text_src, board)
+      result = condition_check(board, 1)
+      break if result != 0
+    end
+  end
+
+  case result
+  when 1
+    prompt(text_src['player_win'])
+  when 2
+    prompt(text_src['comp_win'])
+  when 3
+    prompt(text_src['tie'])
+  end
+
+  break unless play_again?(text_src)
 end
 
-case result
-when 1
-  prompt(text_src['player_win'])
-when 2
-  prompt(text_src['comp_win'])
-when 3
-  prompt(text_src['tie'])
-end
-# play again?
-# thank you for playing
+prompt(text_src['thank_you'])
