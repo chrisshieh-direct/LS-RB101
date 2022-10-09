@@ -117,14 +117,6 @@ def joinor(arr, delimiter = ', ', connector = 'or')
   most.join(delimiter) + "#{oxford}#{connector} #{last}"
 end
 
-def condition_check(brd, role)
-  if board_full?(brd)
-    puts "TIE"
-  elsif victory?(brd, role)
-    puts "WINNER"
-  end
-end
-
 def board_full?(brd)
   empty_squares(brd).empty?
 end
@@ -137,6 +129,14 @@ def victory?(brd, role)
   end
 end
 
+def condition_check(brd, role)
+  if victory?(brd, role)
+    return role
+  elsif board_full?(brd)
+    return 3
+  end
+  return 0
+end
 # end methods
 
 # game begins here
@@ -157,28 +157,33 @@ else
   prompt(text_src['computer_first'])
 end
 
+result = 0
+
 loop do
   if first == 1
     player_move!(text_src, board)
-    condition_check(board, 1)
+    result = condition_check(board, 1)
+    break if result != 0
     computer_move!(text_src, board)
-    condition_check(board, 2)
+    result = condition_check(board, 2)
+    break if result != 0
   else
     computer_move!(text_src, board)
-    condition_check(board, 2)
+    result = condition_check(board, 2)
+    break if result != 0
     player_move!(text_src, board)
-    condition_check(board, 1)
+    result = condition_check(board, 1)
+    break if result != 0
   end
 end
 
-puts "TIE"
-
-# player 1 places
-# check for win
-# check for full
-# player 2 places
-# check for win
-# check for full
+case result
+when 1
+  prompt(text_src['player_win'])
+when 2
+  prompt(text_src['comp_win'])
+when 3
+  prompt(text_src['tie'])
+end
 # play again?
 # thank you for playing
-# okay check this
