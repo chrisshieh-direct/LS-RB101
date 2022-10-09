@@ -177,7 +177,7 @@ end
 def play_again?(text_src_local, lang)
   prompt(text_src_local['again'])
   answer = ''
-  yes_check = lang == 1 ? 'y' : 's'
+  yes_check = lang == '1' ? 'y' : 's'
   loop do
     answer = gets.chomp.downcase
     break if answer == yes_check || answer == 'n'
