@@ -147,6 +147,8 @@ end
 
 # game begins here
 board = reset_board
+player_wins = 0
+computer_wins = 0
 
 prompt("Please choose a language ('1' for English, '2' for Spanish):")
 language = gets.chomp
@@ -187,10 +189,29 @@ loop do
   case result
   when 1
     prompt(text_src['player_win'])
+    player_wins += 1
   when 2
     prompt(text_src['comp_win'])
+    computer_wins += 1
   when 3
     prompt(text_src['tie'])
+  end
+
+  if player_wins < 5 && computer_wins < 5 
+    if language == "2"
+      prompt("Has ganado #{player_wins} veces y la computadora ha ganado #{computer_wins} veces.")
+    else
+      prompt("You've won #{player_wins} times and the computer has won #{computer_wins} times.")
+    end
+
+  elsif player_wins == 5
+    prompt(text_src['player_victory'])
+    player_wins = 0
+    computer_wins = 0
+  elsif computer_wins == 5
+    prompt(text_src['computer_victory'])
+    player_wins = 0
+    computer_wins = 0
   end
 
   break unless play_again?(text_src)
