@@ -1,4 +1,5 @@
 require 'yaml'
+require 'pry'
 
 WINS = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
         [1, 4, 7], [2, 5, 8], [3, 6, 9],
@@ -101,9 +102,45 @@ end
 def computer_move!(text_src_local, brd)
   random_comp_line = "computer_will_move_" + rand(1..15).to_s
   prompt(text_src_local[random_comp_line])
-  sleep 1.5
-  brd[empty_squares(brd).sample] = COMP_MARKER
+  think
+  choice = computer_ai(brd)
+  brd[choice] = COMP_MARKER
   display_board(brd)
+end
+
+def think
+  15.times do
+    print '.'
+    sleep rand / 3
+  end
+end
+
+def computer_ai(brd)
+  offense = ai_find_spot(brd, 2)
+  return offense unless offense.nil?
+  defense = ai_find_spot(brd, 1)
+  return defense unless defense.nil?
+  return 5 if empty_squares(brd).include?(5)
+  empty_squares(brd).sample
+end
+
+def moves_track(brd, which)
+  role = which == 1 ? PLAYER_MARKER : COMP_MARKER
+  brd.select { |_k, v| v == role }.keys
+end
+
+def ai_find_spot(brd, which)
+  moves = moves_track(brd, which)
+  potential = WINS.select do |arr|
+    arr.select { |x| moves.include?(x) }.size == 2
+  end
+  if potential.size > 0
+    potential.each do |arr|
+      pot = arr.reject { |x| moves.include?(x) }.flatten.first
+      return pot if brd[pot] == ' '
+    end
+  end
+  nil
 end
 
 def joinor(arr, delimiter = ', ', connector = 'or')
@@ -138,10 +175,16 @@ def condition_check(brd, role)
   0
 end
 
-def play_again?(text_src_local)
+def play_again?(text_src_local, lang)
   prompt(text_src_local['again'])
-  answer = gets.chomp.downcase
-  answer[0] == 'y'
+  answer = ''
+  yes_check = lang == 1 ? 'y' : 's'
+  loop do
+    answer = gets.chomp.downcase
+    break if answer == yes_check || answer == 'n'
+    prompt(text_src_local['not_valid_play_again'])
+  end
+  answer == yes_check
 end
 # end methods
 
@@ -149,9 +192,16 @@ end
 board = reset_board
 player_wins = 0
 computer_wins = 0
+ties = 0
 
 prompt("Please choose a language ('1' for English, '2' for Spanish):")
-language = gets.chomp
+language = 1
+loop do
+  language = gets.chomp
+  break if language == '1' || language == '2'
+  prompt("Sorry, please choose '1' for English, or '2' for Spanish.")
+end
+
 text_src = localize(language)
 
 # MAIN LOOP
@@ -195,13 +245,18 @@ loop do
     computer_wins += 1
   when 3
     prompt(text_src['tie'])
+    ties += 1
   end
 
-  if player_wins < 5 && computer_wins < 5 
+  if player_wins < 5 && computer_wins < 5
     if language == "2"
-      prompt("Has ganado #{player_wins} veces y la computadora ha ganado #{computer_wins} veces.")
+      prompt("Has ganado #{player_wins} veces.")
+      prompt("La computadora ha ganado #{computer_wins} veces.")
+      prompt("Juegos de empate: #{ties}")
     else
-      prompt("You've won #{player_wins} times and the computer has won #{computer_wins} times.")
+      prompt("You've won #{player_wins} times.")
+      prompt("The computer has won #{computer_wins} times.")
+      prompt("Tie games: #{ties}")
     end
 
   elsif player_wins == 5
@@ -214,7 +269,7 @@ loop do
     computer_wins = 0
   end
 
-  break unless play_again?(text_src)
+  break unless play_again?(text_src, language)
 end
 
 prompt(text_src['thank_you'])
