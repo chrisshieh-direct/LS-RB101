@@ -7,13 +7,18 @@ VALUES = { 'A' => 11, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
            '7' => 7, '8' => 8, '9' => 9, '10' => 10, 'J' => 10,
            'Q' => 10, 'K' => 10 }
 
-def display_table(dlr, plr)
+def display_table(dlr, plr, hide = 0)
+  dealer_display = if hide == 1
+                     "DEALER HAND: #{show_card(dlr[0])} (hidden)"
+                   else
+                     "DEALER HAND: #{show_hand(dlr)} | TOTAL: #{total(dlr)}"
+                   end
+
   system 'clear'
   puts "---===Welcome to BLACKJACK!===---\n\n"
-  puts "DEALER HAND: #{show_card(dlr[0])} (hidden)"
+  puts dealer_display
   puts "---------------------------------"
-  puts "YOUR HAND: #{show_hand(plr)}"
-  puts "Total: #{total(plr)}"
+  puts "YOUR HAND: #{show_hand(plr)} | TOTAL: #{total(plr)}"
 end
 
 def new_shuffled_deck
@@ -70,14 +75,17 @@ end
 # END METHODS
 
 # MAIN GAME
-deck = new_shuffled_deck
-
-player = deck.shift(2)
-dealer = deck.shift(2)
-
-display_table(dealer, player)
-
 loop do
+  print "Shuffling and dealing..."
+  think
+
+  deck = new_shuffled_deck
+
+  player = deck.shift(2)
+  dealer = deck.shift(2)
+
+  display_table(dealer, player, 1)
+
   loop do
     puts "\n(H)it or (S)tay?"
     choice = gets.chomp.downcase
@@ -105,7 +113,8 @@ loop do
     puts "You stayed with a total of #{total(player)}."
   end
 
-  puts "Dealer deciding..."
+  display_table(dealer, player)
+  print "Dealer deciding..."
   think
   if dealer_move(dealer) == 'h'
     dealer << deck.shift.flatten
@@ -113,6 +122,8 @@ loop do
   else
     puts "Dealer stays."
   end
+  sleep 2
+  display_table(dealer, player)
   puts "Dealer total: " + total(dealer).to_s
   puts "Dealer busted." if bust?(dealer)
 
