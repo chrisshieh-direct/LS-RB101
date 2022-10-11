@@ -59,10 +59,14 @@ def show_card(arr)
 end
 
 def think
-  10.times do
+  12.times do
     print '.'
-    sleep rand / 5
+    sleep rand / 7
   end
+end
+
+def blackjack?(cards)
+  total(cards) == 21
 end
 
 def bust?(who)
@@ -71,6 +75,35 @@ end
 
 def dealer_move(dlr)
   total(dlr) < 17 ? 'h' : 's'
+end
+
+def play_again?
+  again = ''
+  puts "\nPlay again? Y or N."
+  loop do
+    again = gets.chomp.downcase
+    if again == 'y' || again == 'n'
+      break
+    else
+      puts "Sorry, enter Y or N."
+    end
+  end
+  again == 'y'
+end
+
+def determine_winner(dlr, plr)
+  total(dlr) <=> total(plr)
+end
+
+def display_winner(wnr)
+  case wnr
+  when 1
+    puts "The dealer won."
+  when 0
+    puts "It's a push."
+  when -1
+    puts "You won! Congratulations!"
+  end
 end
 # END METHODS
 
@@ -86,13 +119,18 @@ loop do
 
   display_table(dealer, player, 1)
 
+  if blackjack?(player)
+    puts "\nWOW! You got a BLACKJACK! You win!"
+    play_again? ? next : break
+  end
+
   loop do
     puts "\n(H)it or (S)tay?"
     choice = gets.chomp.downcase
 
     if choice == 'h'
       player << deck.shift.flatten
-      display_table(dealer, player)
+      display_table(dealer, player, 1)
       puts "New card is #{show_card(player.last)}."
     else
       puts "You stay."
@@ -100,37 +138,51 @@ loop do
     end
 
     puts "Player total: " + total(player).to_s
-    if bust?(player)
-      puts "You busted."
-      break
-    end
+
+    break if bust?(player)
+    break if player.length == 5
   end
 
   if bust?(player)
-    puts "You busted. Play again?"
-    break
-  else
-    puts "You stayed with a total of #{total(player)}."
+    puts "You busted with #{total(player)}. You lose."
+    play_again? ? next : break
+  end
+
+  if player.length == 5
+    puts "You got a 5-Card Charlie! You WIN!"
+    play_again? ? next : break
   end
 
   display_table(dealer, player)
-  print "Dealer deciding..."
-  think
-  if dealer_move(dealer) == 'h'
-    dealer << deck.shift.flatten
-    puts "Dealer draws #{show_card(dealer.last)}."
-  else
-    puts "Dealer stays."
+
+  loop do
+    print "Dealer deciding..."
+    think
+    if dealer_move(dealer) == 'h'
+      dealer << deck.shift.flatten
+      puts "Dealer draws #{show_card(dealer.last)}."
+    else
+      puts "Dealer stays."
+      break
+    end
+    sleep 1.5
+    display_table(dealer, player)
+
+    break if bust?(dealer)
   end
-  sleep 2
+
+  if bust?(dealer)
+    puts "The dealer busted with #{total(dealer)}. You win!"
+    play_again? ? next : break
+  end
+
   display_table(dealer, player)
   puts "Dealer total: " + total(dealer).to_s
-  puts "Dealer busted." if bust?(dealer)
 
-  msg = total(player) > total(dealer) ? "You win." : "Dealer wins."
-  puts msg
+  winner = determine_winner(dealer, player)
+  display_winner(winner)
 
-  puts "Play again?"
-  again = gets.chomp.downcase
-  break if again == 'n'
+  break unless play_again?
 end
+
+puts "Thank you for playing!"

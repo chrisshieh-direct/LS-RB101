@@ -224,15 +224,14 @@ loop do
       break if result != 0
       computer_move!(text_src, board)
       result = condition_check(board, 2)
-      break if result != 0
     else
       computer_move!(text_src, board)
       result = condition_check(board, 2)
       break if result != 0
       player_move!(text_src, board)
       result = condition_check(board, 1)
-      break if result != 0
     end
+    break if result != 0
   end
 
   case result
