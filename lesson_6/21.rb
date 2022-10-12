@@ -1,12 +1,14 @@
 require 'yaml'
 require 'pry'
 
+# CONSTANTS
 RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 SUITS = ['C', 'H', 'S', 'D']
 VALUES = { 'A' => 11, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
            '7' => 7, '8' => 8, '9' => 9, '10' => 10, 'J' => 10,
            'Q' => 10, 'K' => 10 }
 
+# BEGIN METHODS
 def display_table(dlr, plr, hide = 0)
   dealer_display = if hide == 1
                      "DEALER HAND: #{show_card(dlr[0])} (hidden)"
@@ -107,7 +109,7 @@ def display_winner(wnr)
 end
 # END METHODS
 
-# MAIN GAME
+# MAIN GAME LOOP
 loop do
   print "Shuffling and dealing..."
   think
@@ -124,6 +126,7 @@ loop do
     play_again? ? next : break
   end
 
+  # PLAYER TURN MOVE TO HELPER METHOD
   loop do
     puts "\n(H)it or (S)tay?"
     choice = gets.chomp.downcase
@@ -155,6 +158,7 @@ loop do
 
   display_table(dealer, player)
 
+  # DEALER TURN MOVE TO HELPER METHOD
   loop do
     print "Dealer deciding..."
     think
