@@ -1,6 +1,3 @@
-require 'yaml'
-require 'pry'
-
 # CONSTANTS
 RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
 SUITS = ['C', 'H', 'S', 'D']
