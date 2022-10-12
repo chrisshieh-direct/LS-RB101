@@ -1,8 +1,8 @@
 require 'yaml'
 
 WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9],
-        [1, 4, 7], [2, 5, 8], [3, 6, 9],
-        [1, 5, 9], [3, 5, 7]]
+                 [1, 4, 7], [2, 5, 8], [3, 6, 9],
+                 [1, 5, 9], [3, 5, 7]]
 PLAYER_MARKER = 'X'
 COMP_MARKER = 'O'
 LANGUAGES = {
@@ -31,6 +31,10 @@ def reset_board
   { 1 => ' ', 2 => ' ', 3 => ' ',
     4 => ' ', 5 => ' ', 6 => ' ',
     7 => ' ', 8 => ' ', 9 => ' ' }
+end
+
+def reset_score
+  { player_wins: 0, computer_wins: 0, ties: 0 }
 end
 
 def divider_print
@@ -200,13 +204,22 @@ def display_result(result_local, text_src_local)
     prompt(text_src_local['tie'])
   end
 end
+
+def update_score(result_local, score_local)
+  case result_local
+  when 'human'
+    score_local[:player_wins] += 1
+  when 'PC'
+    score_local[:computer_wins] += 1
+  when 'tie'
+    score_local[:ties] += 1
+  end
+end
 # end methods
 
 # game begins here
 board = reset_board
-player_wins = 0
-computer_wins = 0
-ties = 0
+score = reset_score
 
 system 'clear'
 
@@ -250,34 +263,24 @@ loop do
 
   display_result(result, text_src)
 
-  case result
-  when 'human'
-    player_wins += 1
-  when 'PC'
-    computer_wins += 1
-  when 'tie'
-    ties += 1
-  end
+  update_score(result, score)
 
-  if player_wins < 5 && computer_wins < 5
+  if score[:player_wins] < 5 && score[:computer_wins] < 5
     if language == 'spanish'
-      prompt("Has ganado #{player_wins} veces.")
-      prompt("La computadora ha ganado #{computer_wins} veces.")
-      prompt("Juegos de empate: #{ties}")
+      prompt("Has ganado #{score[:player_wins]} veces.")
+      prompt("La computadora ha ganado #{score[:computer_wins]} veces.")
+      prompt("Juegos de empate: #{score[:ties]}")
     else
-      prompt("You've won #{player_wins} times.")
-      prompt("The computer has won #{computer_wins} times.")
-      prompt("Tie games: #{ties}")
+      prompt("You've won #{score[:player_wins]} times.")
+      prompt("The computer has won #{score[:computer_wins]} times.")
+      prompt("Tie games: #{score[:ties]}")
     end
-
-  elsif player_wins == 5
+  elsif score[:player_wins] == 5
     prompt(text_src['player_victory'])
-    player_wins = 0
-    computer_wins = 0
-  elsif computer_wins == 5
+    score = reset_score
+  elsif score[:computer_wins] == 5
     prompt(text_src['computer_victory'])
-    player_wins = 0
-    computer_wins = 0
+    score = reset_score
   end
 
   break unless play_again?(text_src, language)
