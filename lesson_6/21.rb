@@ -7,20 +7,22 @@ SUITS = ['C', 'H', 'S', 'D']
 VALUES = { 'A' => 11, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
            '7' => 7, '8' => 8, '9' => 9, '10' => 10, 'J' => 10,
            'Q' => 10, 'K' => 10 }
+WINNING_TOTAL = 21
+DEALER_MUST_HOLD_AT = 17
 
 # BEGIN METHODS
-def display_table(dlr, plr, hide = 0)
-  dealer_display = if hide == 1
+def display_table(dlr, plr, totals_local, dlr_card = 'show')
+  dealer_display = if dlr_card == 'hide'
                      "DEALER HAND: #{show_card(dlr[0])} (hidden)"
                    else
-                     "DEALER HAND: #{show_hand(dlr)} | TOTAL: #{total(dlr)}"
+                     "DEALER HAND: #{show_hand(dlr)} | TOTAL: #{totals_local[:dealer]}"
                    end
 
   system 'clear'
   puts "---===Welcome to BLACKJACK!===---\n\n"
   puts dealer_display
   puts "---------------------------------"
-  puts "YOUR HAND: #{show_hand(plr)} | TOTAL: #{total(plr)}"
+  puts "YOUR HAND: #{show_hand(plr)} | TOTAL: #{totals_local[:player]}\n\n"
 end
 
 def new_shuffled_deck
@@ -41,7 +43,7 @@ def total(cards)
   end
   i = cards.flatten.count('A')
   while i > 0
-    break if sum < 22
+    break if sum < (WINNING_TOTAL + 1)
     sum -= 10
     i -= 1
   end
@@ -67,16 +69,16 @@ def think
   end
 end
 
-def blackjack?(cards)
-  total(cards) == 21
+def blackjack?(player_total_local)
+  player_total_local == WINNING_TOTAL
 end
 
-def bust?(who)
-  total(who) > 21
+def bust?(total_local)
+  total_local > WINNING_TOTAL
 end
 
 def dealer_move(dlr)
-  total(dlr) < 17 ? 'h' : 's'
+  total(dlr) < DEALER_MUST_HOLD_AT ? 'h' : 's'
 end
 
 def play_again?
@@ -93,8 +95,8 @@ def play_again?
   again == 'y'
 end
 
-def determine_winner(dlr, plr)
-  total(dlr) <=> total(plr)
+def determine_winner(totals_local)
+  totals_local[:dealer] <=> totals_local[:player]
 end
 
 def display_winner(wnr)
@@ -107,47 +109,72 @@ def display_winner(wnr)
     puts "You won! Congratulations!"
   end
 end
-# END METHODS
 
-# MAIN GAME LOOP
-loop do
-  print "Shuffling and dealing..."
-  think
-
-  deck = new_shuffled_deck
-
-  player = deck.shift(2)
-  dealer = deck.shift(2)
-
-  display_table(dealer, player, 1)
-
-  if blackjack?(player)
-    puts "\nWOW! You got a BLACKJACK! You win!"
-    play_again? ? next : break
-  end
-
-  # PLAYER TURN MOVE TO HELPER METHOD
+def player_turn(player_local, totals_local, dealer_local, deck_local)
   loop do
     puts "\n(H)it or (S)tay?"
     choice = gets.chomp.downcase
 
     if choice == 'h'
-      player << deck.shift.flatten
-      display_table(dealer, player, 1)
-      puts "New card is #{show_card(player.last)}."
+      player_local << deck_local.shift.flatten
+      totals_local[:player] = total(player_local)
+      display_table(dealer_local, player_local, totals_local, 'hide')
+      puts "New card is #{show_card(player_local.last)}."
+      puts "\nYour total: " + totals_local[:player].to_s
+      break if bust?(totals_local[:player])
+      break if player_local.length == 5
     else
       puts "You stay."
+      puts "\nYour total: " + totals_local[:player].to_s
       break
     end
+  end
+end
 
-    puts "Player total: " + total(player).to_s
+def dealer_turn(player_local, totals_local, dealer_local, deck_local)
+  loop do
+    print "Dealer deciding..."
+    think
+    if dealer_move(dealer_local) == 'h'
+      dealer_local << deck_local.shift.flatten
+      puts "Dealer draws #{show_card(dealer_local.last)}."
+      totals_local[:dealer] = total(dealer_local)
+      break if bust?(totals_local[:dealer])
+    else
+      puts "Dealer stays."
+      break
+    end
+    sleep 1.5
+    display_table(dealer_local, player_local, totals_local)
+  end
+end
+# END METHODS
 
-    break if bust?(player)
-    break if player.length == 5
+# MAIN GAME LOOP
+loop do
+  system 'clear'
+  print "Shuffling and dealing..."
+  think
+
+  deck = new_shuffled_deck
+  player = deck.shift(2)
+  dealer = deck.shift(2)
+
+  totals = { player: 0, dealer: 0 }
+  totals[:player] = total(player)
+  totals[:dealer] = total(dealer)
+
+  display_table(dealer, player, totals, 'hide')
+
+  if blackjack?(totals[:player])
+    puts "\nWOW! You got a BLACKJACK! You win!"
+    play_again? ? next : break
   end
 
-  if bust?(player)
-    puts "You busted with #{total(player)}. You lose."
+  player_turn(player, totals, dealer, deck)
+
+  if bust?(totals[:player])
+    puts "You BUSTED. You lose."
     play_again? ? next : break
   end
 
@@ -156,34 +183,20 @@ loop do
     play_again? ? next : break
   end
 
-  display_table(dealer, player)
+  display_table(dealer, player, totals)
 
-  # DEALER TURN MOVE TO HELPER METHOD
-  loop do
-    print "Dealer deciding..."
-    think
-    if dealer_move(dealer) == 'h'
-      dealer << deck.shift.flatten
-      puts "Dealer draws #{show_card(dealer.last)}."
-    else
-      puts "Dealer stays."
-      break
-    end
-    sleep 1.5
-    display_table(dealer, player)
+  dealer_turn(player, totals, dealer, deck)
 
-    break if bust?(dealer)
-  end
-
-  if bust?(dealer)
-    puts "The dealer busted with #{total(dealer)}. You win!"
+  if bust?(totals[:dealer])
+    puts "The dealer busted with #{totals[:dealer]}. You win!"
     play_again? ? next : break
   end
 
-  display_table(dealer, player)
-  puts "Dealer total: " + total(dealer).to_s
+  display_table(dealer, player, totals)
 
-  winner = determine_winner(dealer, player)
+  puts "Dealer total: " + totals[:dealer].to_s
+
+  winner = determine_winner(totals)
   display_winner(winner)
 
   break unless play_again?
