@@ -1,9 +1,13 @@
+require 'io/console'
+require 'pry'
+
 # CONSTANTS
-RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-SUITS = ['C', 'H', 'S', 'D']
-VALUES = { 'A' => 11, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
-           '7' => 7, '8' => 8, '9' => 9, '10' => 10, 'J' => 10,
-           'Q' => 10, 'K' => 10 }
+RANKS = ['Ace', '2', '3', '4', '5', '6', '7',
+         '8', '9', '10', 'Jack', 'Queen', 'King']
+SUITS = ['Clubs', 'Hearts', 'Spades', 'Diamonds']
+VALUES = { 'Ace' => 11, '2' => 2, '3' => 3, '4' => 4, '5' => 5, '6' => 6,
+           '7' => 7, '8' => 8, '9' => 9, '10' => 10, 'Jack' => 10,
+           'Queen' => 10, 'King' => 10 }
 WINNING_TOTAL = 21
 DEALER_MUST_HOLD_AT = 17
 
@@ -12,7 +16,8 @@ def display_table(dlr, plr, totals_local, dlr_card = 'show')
   dealer_display = if dlr_card == 'hide'
                      "DEALER HAND: #{show_card(dlr[0])} (hidden)"
                    else
-                     "DEALER HAND: #{show_hand(dlr)} | TOTAL: #{totals_local[:dealer]}"
+                     "DEALER HAND: #{show_hand(dlr)} | TOTAL: "\
+                     "#{totals_local[:dealer]}"
                    end
 
   system 'clear'
@@ -38,7 +43,7 @@ def total(cards)
     value = VALUES[arr[0]]
     sum += value
   end
-  i = cards.flatten.count('A')
+  i = cards.flatten.count('Ace')
   while i > 0
     break if sum < (WINNING_TOTAL + 1)
     sum -= 10
@@ -49,14 +54,15 @@ end
 
 def show_hand(arr)
   display = ''
-  arr.each do |a|
-    display << show_card(a) + ' '
+  *most, last = arr
+  most.each do |card|
+    display << show_card(card) + ', '
   end
-  display
+  display << show_card(last)
 end
 
 def show_card(arr)
-  (arr[0] + arr[1]).to_s
+  (arr[0] + ' of ' + arr[1]).to_s
 end
 
 def think
@@ -107,19 +113,30 @@ def display_winner(wnr)
   end
 end
 
+def hit_or_stay
+  puts "\n(H)it or (S)tay?"
+  answer = ''
+  loop do
+    answer = gets.chomp.downcase
+    break if ['h', 's', 'hit', 'stay'].include?(answer)
+    puts "Sorry, please choose (H)it or (S)tay."
+  end
+  answer
+end
+
+def player_hit(player_local, dealer_local, deck_local, totals_local)
+  player_local << deck_local.shift.flatten
+  totals_local[:player] = total(player_local)
+  display_table(dealer_local, player_local, totals_local, 'hide')
+  puts "New card is #{show_card(player_local.last)}."
+end
+
 def player_turn(player_local, totals_local, dealer_local, deck_local)
   loop do
-    puts "\n(H)it or (S)tay?"
-    choice = gets.chomp.downcase
-
-    if choice == 'h'
-      player_local << deck_local.shift.flatten
-      totals_local[:player] = total(player_local)
-      display_table(dealer_local, player_local, totals_local, 'hide')
-      puts "New card is #{show_card(player_local.last)}."
-      puts "\nYour total: " + totals_local[:player].to_s
-      break if bust?(totals_local[:player])
-      break if player_local.length == 5
+    choice = hit_or_stay
+    if choice == 'h' || choice == 'hit'
+      player_hit(player_local, dealer_local, deck_local, totals_local)
+      break if bust?(totals_local[:player]) || player_local.length == 5
     else
       puts "You stay."
       puts "\nYour total: " + totals_local[:player].to_s
@@ -129,28 +146,52 @@ def player_turn(player_local, totals_local, dealer_local, deck_local)
 end
 
 def dealer_turn(player_local, totals_local, dealer_local, deck_local)
-  loop do
-    print "Dealer deciding..."
-    think
-    if dealer_move(dealer_local) == 'h'
-      dealer_local << deck_local.shift.flatten
-      puts "Dealer draws #{show_card(dealer_local.last)}."
-      totals_local[:dealer] = total(dealer_local)
-      break if bust?(totals_local[:dealer])
-    else
-      puts "Dealer stays."
-      break
-    end
-    sleep 1.5
+  print "Dealer deciding..."
+  think
+  if dealer_move(dealer_local) == 'h'
+    dealer_local << deck_local.shift.flatten
+    puts "Dealer draws #{show_card(dealer_local.last)}."
+    totals_local[:dealer] = total(dealer_local)
+    continue
     display_table(dealer_local, player_local, totals_local)
+    return if bust?(totals_local[:dealer])
+    dealer_turn(player_local, totals_local, dealer_local, deck_local)
+  else
+    puts "Dealer stays."
+    continue
   end
+end
+
+def introduction
+  puts "Would you like to an introduction to the game? (Y or N)"
+  answer = ''
+  loop do
+    answer = gets.chomp.downcase
+    break if answer == 'y' || answer == 'n'
+    puts "Sorry, please enter Y or N."
+  end
+  return if answer == 'n'
+  puts "In Blackjack, you will be dealt two cards, with the option to 'hit' to"
+  puts "receive more cards, or 'stay' if you are satisfied with your total."
+  puts "Your goal is to get as close to #{WINNING_TOTAL} without going over,"
+  puts "and you win if your total is higher than the dealer's. You can also"
+  puts "win by accumulating five cards, which is called a 5-Card Charlie."
+  puts "-------------------------------------------------------------------"
+  continue
+end
+
+def continue
+  puts "\nPress any key to continue."
+  STDIN.getch
 end
 # END METHODS
 
 # MAIN GAME LOOP
+system 'clear'
+introduction
+
 loop do
-  system 'clear'
-  print "Shuffling and dealing..."
+  print "\nShuffling and dealing..."
   think
 
   deck = new_shuffled_deck
@@ -171,12 +212,12 @@ loop do
   player_turn(player, totals, dealer, deck)
 
   if bust?(totals[:player])
-    puts "You BUSTED. You lose."
+    puts "\nYou BUSTED. You lose."
     play_again? ? next : break
   end
 
   if player.length == 5
-    puts "You got a 5-Card Charlie! You WIN!"
+    puts "\nYou got a 5-Card Charlie! You WIN!"
     play_again? ? next : break
   end
 
