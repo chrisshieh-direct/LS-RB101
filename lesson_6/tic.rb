@@ -25,6 +25,10 @@ def reset_board
     7 => ' ', 8 => ' ', 9 => ' ' }
 end
 
+def reset_score
+  { player_wins => 0, computer_wins => 0, ties => 0 }
+end
+
 def divider_print
   puts '-------------'
 end
@@ -185,13 +189,25 @@ def play_again?(text_src_local, lang)
   end
   answer == yes_check
 end
+
+def update_score(result_local, score_local)
+  case result_local
+  when 1
+    prompt(text_src['player_win'])
+    score_local[player_wins] += 1
+  when 2
+    prompt(text_src['comp_win'])
+    score_local[computer_wins] += 1
+  when 3
+    prompt(text_src['tie'])
+    score_local[ties] += 1
+  end
+end
 # end methods
 
 # game begins here
 board = reset_board
-player_wins = 0
-computer_wins = 0
-ties = 0
+score = reset_score
 
 prompt("Please choose a language ('1' for English, '2' for Spanish):")
 language = 1
@@ -234,17 +250,7 @@ loop do
     break if result != 0
   end
 
-  case result
-  when 1
-    prompt(text_src['player_win'])
-    player_wins += 1
-  when 2
-    prompt(text_src['comp_win'])
-    computer_wins += 1
-  when 3
-    prompt(text_src['tie'])
-    ties += 1
-  end
+  update_score(result)
 
   if player_wins < 5 && computer_wins < 5
     if language == "2"
